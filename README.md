@@ -16,6 +16,14 @@ This is a personal project on creating a todo list API.
 |-- Makefile // contains the recipes for automating common admin tasks e.g. audit the Go code, building binaries and executing database migrations
 ```
 
+## Endpoints
+
+| Method | URL Pattern         | Handler            | Action                              |
+| ------ | ------------------- | ------------------ | ----------------------------------- |
+| GET    | /api/v1/healthcheck | healthcheckHandler | Show application information        |
+| POST   | /api/v1/todos       | createTodoHandler  | Create a new todo                   |
+| GET    | /api/v1/todos/:id   | showTodoHandler    | Show the details of a specific todo |
+
 ## Note
 
 To run the application on a different port and environment, we can use the `-port` and `-env` flags:
