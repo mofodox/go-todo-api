@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -9,7 +10,18 @@ import (
 )
 
 func (app *application) createTodoHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "create a new todo")
+	var input struct {
+		Title       string `json:"title"`
+		IsCompleted bool   `json:"is_completed"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 func (app *application) showTodoHandler(w http.ResponseWriter, r *http.Request) {
