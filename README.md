@@ -2,6 +2,10 @@
 
 This is a personal project on creating a todo list API.
 
+## To Get Started
+
+To get started, clone the project onto your local. Once you have cloned the project, use `go mod download` to download the project's dependencies. After the dependencies has been downloaded, you can run the project `go run ./cmd/api`.
+
 ## File Structure
 
 ```
@@ -16,7 +20,7 @@ This is a personal project on creating a todo list API.
 |-- Makefile // contains the recipes for automating common admin tasks e.g. audit the Go code, building binaries and executing database migrations
 ```
 
-## Endpoints
+## Available Endpoints
 
 | Method | URL Pattern         | Handler            | Action                              |
 | ------ | ------------------- | ------------------ | ----------------------------------- |
