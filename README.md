@@ -20,6 +20,12 @@ To get started, clone the project onto your local. Once you have cloned the proj
 |-- Makefile // contains the recipes for automating common admin tasks e.g. audit the Go code, building binaries and executing database migrations
 ```
 
+## Stack
+
+1. `httprouter` – For routing
+2. `pq` – For PostgreSQL database driver
+3. `godotenv` - To load environment variables
+
 ## Available Endpoints
 
 | Method | URL Pattern         | Handler            | Action                              |
