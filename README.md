@@ -4,6 +4,8 @@ This is a personal project on creating a todo list API.
 
 ## To Get Started
 
+> Before you run the project, rename the `env.sample` to `env.local` and include your database dsn. If not, you will encounter an error.
+
 To get started, clone the project onto your local. Once you have cloned the project, use `go mod download` to download the project's dependencies. After the dependencies has been downloaded, you can run the project `go run ./cmd/api`.
 
 ## File Structure
@@ -29,11 +31,13 @@ To get started, clone the project onto your local. Once you have cloned the proj
 
 ## Available Endpoints
 
-| Method | URL Pattern         | Handler            | Action                              |
-| ------ | ------------------- | ------------------ | ----------------------------------- |
-| GET    | /api/v1/healthcheck | healthcheckHandler | Show application information        |
-| POST   | /api/v1/todos       | createTodoHandler  | Create a new todo                   |
-| GET    | /api/v1/todos/:id   | showTodoHandler    | Show the details of a specific todo |
+| Method | URL Pattern         | Handler            | Action                                |
+| ------ | ------------------- | ------------------ | ------------------------------------- |
+| GET    | /api/v1/healthcheck | healthcheckHandler | Show application information          |
+| POST   | /api/v1/todos       | createTodoHandler  | Create a new todo                     |
+| GET    | /api/v1/todos/:id   | showTodoHandler    | Show the details of a specific todo   |
+| PUT    | /api/v1/todos/:id   | updateTodoHandler  | Update the details of a specific todo |
+| DELETE | /api/v1/todos/:id   | deleteTodoHandler  | Delete a specific todo                |
 
 ## Note
 
