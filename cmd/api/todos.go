@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -38,7 +39,19 @@ func (app *application) createTodoHandler(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	fmt.Fprintf(w, "%+v\n", input)
+	err = app.models.Todos.Insert(todo)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/api/v1/todos/%d", todo.ID))
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"todo": todo}, headers)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) showTodoHandler(w http.ResponseWriter, r *http.Request) {
@@ -48,16 +61,98 @@ func (app *application) showTodoHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	todo := data.Todo{
-		ID:          id,
-		Title:       "Test 1",
-		IsCompleted: false,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-		Version:     1,
+	todo, err := app.models.Todos.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"todo": todo}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) updateTodoHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Title       string `json:"title"`
+		IsCompleted bool   `json:"is_completed"`
+	}
+
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	todo, err := app.models.Todos.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+
+		return
+	}
+
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	todo.Title = input.Title
+	todo.IsCompleted = input.IsCompleted
+	todo.UpdatedAt = time.Now()
+
+	v = validator.New()
+	err = v.Struct(todo)
+	if err != nil {
+		if e, ok := err.(*validator.InvalidValidationError); ok {
+			app.errorResponse(w, r, http.StatusUnprocessableEntity, e.Error())
+			return
+		}
+	}
+
+	err = app.models.Todos.Update(todo)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"todo": todo}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) deleteTodoHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	err = app.models.Todos.Delete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": fmt.Sprintf("todo with id %d successfully deleted", id)}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
