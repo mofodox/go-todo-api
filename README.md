@@ -24,7 +24,8 @@ To get started, clone the project onto your local. Once you have cloned the proj
 
 1. `httprouter` – For routing
 2. `pq` – For PostgreSQL database driver
-3. `godotenv` - To load environment variables
+3. `godotenv` – To load environment variables
+4. `golang-migrate` – SQL migrations
 
 ## Available Endpoints
 
