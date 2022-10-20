@@ -31,13 +31,14 @@ To get started, clone the project onto your local. Once you have cloned the proj
 
 ## Available Endpoints
 
-| Method | URL Pattern         | Handler            | Action                                |
-| ------ | ------------------- | ------------------ | ------------------------------------- |
-| GET    | /api/v1/healthcheck | healthcheckHandler | Show application information          |
-| POST   | /api/v1/todos       | createTodoHandler  | Create a new todo                     |
-| GET    | /api/v1/todos/:id   | showTodoHandler    | Show the details of a specific todo   |
-| PUT    | /api/v1/todos/:id   | updateTodoHandler  | Update the details of a specific todo |
-| DELETE | /api/v1/todos/:id   | deleteTodoHandler  | Delete a specific todo                |
+| Method | URL Pattern         | Handler             | Action                                |
+| ------ | ------------------- | ------------------- | ------------------------------------- |
+| GET    | /api/v1/healthcheck | healthcheckHandler  | Show application information          |
+| GET    | /api/v1/todos       | showAllTodosHandler | Show all todos                        |
+| POST   | /api/v1/todos       | createTodoHandler   | Create a new todo                     |
+| GET    | /api/v1/todos/:id   | showTodoHandler     | Show the details of a specific todo   |
+| PATCH  | /api/v1/todos/:id   | updateTodoHandler   | Update the details of a specific todo |
+| DELETE | /api/v1/todos/:id   | deleteTodoHandler   | Delete a specific todo                |
 
 ## Note
 
