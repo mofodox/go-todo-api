@@ -78,6 +78,28 @@ func (app *application) showTodoHandler(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func (app *application) showAllTodosHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Title       string
+		IsCompleted bool
+	}
+
+	todos, err := app.models.Todos.GetAll(input.Title, input.IsCompleted)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"todos": todos}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
 func (app *application) updateTodoHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title       *string `json:"title"`
