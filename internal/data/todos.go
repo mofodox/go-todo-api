@@ -56,6 +56,43 @@ func (t TodoModel) Get(id int64) (*Todo, error) {
 	return &todo, nil
 }
 
+func (t TodoModel) GetAll(title string, isCompleted bool) ([]*Todo, error) {
+	qry := `SELECT id, title, is_completed, created_at, updated_at, version FROM todos ORDER BY id`
+
+	rows, err := t.DB.Query(qry)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	todos := []*Todo{}
+
+	for rows.Next() {
+		var todo Todo
+
+		err := rows.Scan(
+			&todo.ID,
+			&todo.Title,
+			&todo.IsCompleted,
+			&todo.CreatedAt,
+			&todo.UpdatedAt,
+			&todo.Version,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		todos = append(todos, &todo)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return todos, nil
+}
+
 func (t TodoModel) Update(todo *Todo) error {
 	qry := `UPDATE todos SET title = $1, is_completed = $2, updated_at = $3, version = version + 1 WHERE id = $4 RETURNING version`
 
