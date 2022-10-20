@@ -80,8 +80,8 @@ func (app *application) showTodoHandler(w http.ResponseWriter, r *http.Request) 
 
 func (app *application) updateTodoHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Title       string `json:"title"`
-		IsCompleted bool   `json:"is_completed"`
+		Title       *string `json:"title"`
+		IsCompleted *bool   `json:"is_completed"`
 	}
 
 	id, err := app.readIDParam(r)
@@ -108,8 +108,14 @@ func (app *application) updateTodoHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	todo.Title = input.Title
-	todo.IsCompleted = input.IsCompleted
+	if input.Title != nil {
+		todo.Title = *input.Title
+	}
+
+	if input.IsCompleted != nil {
+		todo.IsCompleted = *input.IsCompleted
+	}
+
 	todo.UpdatedAt = time.Now()
 
 	v = validator.New()
