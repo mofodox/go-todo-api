@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"time"
@@ -24,7 +25,10 @@ func (t TodoModel) Insert(todo *Todo) error {
 
 	args := []interface{}{todo.Title, todo.IsCompleted}
 
-	return t.DB.QueryRow(qry, args...).Scan(&todo.ID, &todo.CreatedAt, &todo.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	return t.DB.QueryRowContext(ctx, qry, args...).Scan(&todo.ID, &todo.CreatedAt, &todo.Version)
 }
 
 func (t TodoModel) Get(id int64) (*Todo, error) {
@@ -32,11 +36,15 @@ func (t TodoModel) Get(id int64) (*Todo, error) {
 		return nil, ErrRecordNotFound
 	}
 
-	qry := `SELECT id, title, is_completed, created_at, updated_at, version FROM todos WHERE id = $1`
+	qry := `SELECT pg_sleep(10), id, title, is_completed, created_at, updated_at, version FROM todos WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
 	var todo Todo
 
-	err := t.DB.QueryRow(qry, id).Scan(
+	err := t.DB.QueryRowContext(ctx, qry, id).Scan(
+		&[]byte{},
 		&todo.ID,
 		&todo.Title,
 		&todo.IsCompleted,
@@ -59,7 +67,10 @@ func (t TodoModel) Get(id int64) (*Todo, error) {
 func (t TodoModel) GetAll(title string, isCompleted bool) ([]*Todo, error) {
 	qry := `SELECT id, title, is_completed, created_at, updated_at, version FROM todos ORDER BY id`
 
-	rows, err := t.DB.Query(qry)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := t.DB.QueryContext(ctx, qry)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +115,10 @@ func (t TodoModel) Update(todo *Todo) error {
 		todo.Version,
 	}
 
-	err := t.DB.QueryRow(qry, args...).Scan(&todo.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := t.DB.QueryRowContext(ctx, qry, args...).Scan(&todo.Version)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -124,7 +138,10 @@ func (t *TodoModel) Delete(id int64) error {
 
 	qry := `DELETE FROM todos WHERE id = $1`
 
-	result, err := t.DB.Exec(qry, id)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := t.DB.ExecContext(ctx, qry, id)
 	if err != nil {
 		return err
 	}
