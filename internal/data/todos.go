@@ -94,16 +94,27 @@ func (t TodoModel) GetAll(title string, isCompleted bool) ([]*Todo, error) {
 }
 
 func (t TodoModel) Update(todo *Todo) error {
-	qry := `UPDATE todos SET title = $1, is_completed = $2, updated_at = $3, version = version + 1 WHERE id = $4 RETURNING version`
+	qry := `UPDATE todos SET title = $1, is_completed = $2, updated_at = $3, version = version + 1 WHERE id = $4 AND version = $5 RETURNING version`
 
 	args := []interface{}{
 		todo.Title,
 		todo.IsCompleted,
 		todo.UpdatedAt,
 		todo.ID,
+		todo.Version,
 	}
 
-	return t.DB.QueryRow(qry, args...).Scan(&todo.Version)
+	err := t.DB.QueryRow(qry, args...).Scan(&todo.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (t *TodoModel) Delete(id int64) error {
