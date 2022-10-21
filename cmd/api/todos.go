@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/mofodox/go-todo/internal/data"
-	// "github.com/mofodox/go-todo/internal/validator"
 )
 
 var v *validator.Validate
@@ -151,8 +150,12 @@ func (app *application) updateTodoHandler(w http.ResponseWriter, r *http.Request
 
 	err = app.models.Todos.Update(todo)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"todo": todo}, nil)
